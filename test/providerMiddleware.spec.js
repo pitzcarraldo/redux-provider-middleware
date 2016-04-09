@@ -10,8 +10,8 @@ describe('providerMiddleware', () => {
   };
 
   it('should add providers to thunk action', (done) => {
-    const mockDispatch = spy();
-    const mockGetState = spy();
+    const dispatch = spy();
+    const getState = spy();
     const next = spy();
     const action = ({ $test }) => {
       console.log($test);
@@ -22,6 +22,6 @@ describe('providerMiddleware', () => {
         payload: $test
       };
     };
-    providerMiddleware(testProvider)({ mockDispatch, mockGetState })(next)(action);
+    providerMiddleware(testProvider)({ dispatch, getState })(next)(action);
   });
 });
