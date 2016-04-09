@@ -1,3 +1,6 @@
 {
-  "extends": "reduxible"
+  "extends": "reduxible",
+  "rules": {
+    "no-param-reassign" : 0
+  }
 }

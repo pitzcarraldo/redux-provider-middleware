@@ -1,18 +1,10 @@
+let PROVIDERS = {};
 export default function providerMiddleware(...willProvide) {
-  return ({ dispatch, getState }) => next => action => {
-    const nextAction = action;
-    const providers = willProvide.reduce((prevProviders, Provider) => {
-      const nextProviders = prevProviders;
-      const provider = new Provider();
-      nextProviders[provider.name] = provider.$get(nextAction.context || {});
-      return nextProviders;
+  return ({ dispatch, getState }) => {
+    PROVIDERS = willProvide.reduce((prevProviders, provider) => {
+      prevProviders[provider.name] = provider.$get(dispatch, getState);
+      return prevProviders;
     }, {});
-
-    if (nextAction.thunk) {
-      return nextAction.thunk(dispatch, getState, providers);
-    }
-
-    nextAction.providers = providers;
-    return next(nextAction);
+    return next => action => next(typeof action === 'function' ? action(PROVIDERS) : action);
   };
 }

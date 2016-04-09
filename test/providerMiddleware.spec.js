@@ -1,43 +1,27 @@
-import chai, { expect } from 'chai';
-import { spy } from 'sinon';
-import sinonChai from 'sinon-chai';
-import providerMiddleware, { Provider } from '../src/index';
-
-chai.use(sinonChai);
+import { expect, spy } from 'cafeteria';
+import providerMiddleware from '../src/index';
 
 describe('providerMiddleware', () => {
-  it('should add providers to action', () => {
-    class TestProvider extends Provider {
-      name = '$test';
-      $get() {
-        return 'This is a test provider.';
-      }
+  const testProvider = {
+    name: '$test',
+    $get() {
+      return 'This is a test provider.';
     }
-    const action = { type: 'TEST' };
-    const dispatch = spy();
-    const getState = spy();
-    const next = spy();
-    providerMiddleware(TestProvider)({ dispatch, getState })(next)(action);
-    expect(next).to.have.been.calledWith(action);
-    expect(action).to.have.property('providers');
-    expect(action.providers).to.have.property('$test');
-    expect(action.providers.$test).to.be.equal('This is a test provider.');
-  });
+  };
 
   it('should add providers to thunk action', (done) => {
-    class TestProvider extends Provider {
-      name = '$test';
-      $get() {
-        return 'This is a test provider.';
-      }
-    }
     const mockDispatch = spy();
     const mockGetState = spy();
     const next = spy();
-    const action = { type: 'TEST', thunk: (dispatch, getState, { $test }) => {
+    const action = ({ $test }) => {
+      console.log($test);
       expect($test).to.be.equal('This is a test provider.');
       done();
-    } };
-    providerMiddleware(TestProvider)({ mockDispatch, mockGetState })(next)(action);
+      return {
+        type: 'TEST',
+        payload: $test
+      };
+    };
+    providerMiddleware(testProvider)({ mockDispatch, mockGetState })(next)(action);
   });
 });
