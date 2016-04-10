@@ -5,15 +5,19 @@ export default function providerMiddleware(...willProvide) {
       prevProviders[provider.name] = provider.$get({ dispatch, getState });
       return prevProviders;
     }, {});
-    return next => async action => {
-      try {
-        if (typeof action === 'function' && action.name && action.name.indexOf('callee') > -1) {
-          action = await action(PROVIDERS);
+    return next => action => {
+      if (typeof action === 'function') {
+        const provided = action(PROVIDERS);
+        if (provided.then && typeof provided.then === 'function') {
+          return provided
+            .then(providedAction => next(providedAction))
+            .catch(error => {
+              throw error;
+            });
         }
-        return next(typeof action === 'function' ? action(PROVIDERS) : action);
-      } catch (error) {
-        return next({ type: '@@provider/ERROR', payload: error });
+        action = provided;
       }
+      return next(action);
     };
   };
 }
