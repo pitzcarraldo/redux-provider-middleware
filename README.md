@@ -32,7 +32,7 @@ If you applied redux-provider-middleware to your redux application, you can disp
 `httpProvider.js`
 
 ```js
-const HTTP_CLIENT = new HttpClient();
+const HTTP_CLIENT = new HttpClient(); // Abstract http client. You could make this with fetch, superagent or axios.
 
 export default {
   name: '$http',
