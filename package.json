@@ -1,7 +1,7 @@
 {
   "name": "redux-provider-middleware",
   "description": "A redux middleware which provides Angular-like providers.",
-  "version": "0.1.0",
+  "version": "0.0.1-beta",
   "author": "Minkyu Cho <mrnoname@naver.com>",
   "license": "MIT",
   "homepage": "https://github.com/Pitzcarraldo/redux-provider-middleware",
