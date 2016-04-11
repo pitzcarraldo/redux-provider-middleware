@@ -9,51 +9,85 @@ A redux middleware which provides Angular-like providers.
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/reduxible/redux-provider-middleware)
 
 
-## providerMiddleware
+### API
 
-The `providerMiddleware` provides providers that similar with [providers of Angular.js](https://docs.angularjs.org/guide/providers). A `providerMiddleware` injects providers that returns new or cached objects to action. To use providers, you can make providers by extends abstract class `Provider` and initialize `providerMiddleware` with them. For implement `Provider` class, child class must have below two properties.
-* name: A name of the provider. You can call provided object by this name in actions.
-* $get: A method that returns provided object. This can return anything you want. Static variables, new instance, utility functions, singleton object...etc. `$get` will receive `context` by argument from `contextMiddleware`. If you use this middleware, you may not use other middlewares. But providerMiddleware could solve many requirements at once by angular like way.
+## `providerMiddleware(providers: array)`
 
+The `providerMiddleware` provides providers that similar with [providers of Angular.js](https://docs.angularjs.org/guide/providers). A `providerMiddleware` injects providers that returns new or cached objects to action.
+
+### `provider`
+
+To use providerMiddleware, you should create `provider`. `provider` is pure JavaScript Object. It must has propeties `name` and `$get`.
+* `name`: A name of the provider. You can call provided object by this name in actions.
+*` $get({dispatch, getState})`: A method that provides something. This can return anything you want. Variables, new instance, utility functions, singleton object...etc. `$get` will received object contains `dispatch` and `getState` like `redux-thunk`. It would help you when you need something related with redux state.
+
+### `providedThunk(providers: object)`
+
+If you applied redux-provider-middleware to your redux application, you can dispatch `providedThunk` as action. `providedThunk` is function which reciedved providers object as argument. You can get provided things by name that you defined into provider. `providedThunk` should returns redux action. It could be also `redux-thunk` or `promise`. If you want to use other middleware with `providerMiddleware`, should add them after `providerMiddleware`.
+
+
+## USAGE 
+
+`httpProvider.js`
 
 ```js
+const HTTP_CLIENT = new HttpClient();
 
-class HttpProvider extends Provider {
-    static DEFAULT_CLIENT = new HttpClient();
-    name = '$http'
-    $get({ req }) {
-        if (req) {
-           return DEFAULT_CLIENT;
+export default {
+  name: '$http',
+  $get({ dispatch, getState }) {
+    const { context: { req } } = getState();
+    return req ? new HttpClient(req) : HTTP_CLIENT;
+  }
+};
+```
+
+`createStore.js`
+```js
+import { createStore, applyMiddleware } from 'redux';
+import providerMiddleware from 'redux-provider-middleware';
+import thunk from 'redux-thunk';
+import promiseMiddleware from 'redux-promise-middleware'
+import rootReducer from './reducers/index';
+import httpProvider from './httpProvider';
+
+const store = createStore(
+  rootReducer,
+  applyMiddleware(
+    providerMiddleware([httpProvider]),
+    // You can also use other middleware with providers
+    thunk,
+    promiseMiddleware()
+  )
+);
+```
+
+`actions.js`
+```js
+function getEntities() {
+    // This is the provided thunk.
+    return async ({ $http }) => {
+      const response = await $http.get('/entities');
+      return {
+        type: 'UPDATE_ENTITIES',
+        payload: {
+            entities: response.body.entities
         }
-        return new HttpClient(req);
+      }
     }
 }
 
-const middlewares = [providerMiddleware([HttpProvider])];
-
-const reduxible = new Reduxible({
-    ...
-    middlewares
-    ...
-});
-
-//Get providers in action as thunk.
-const action = createAction('todo', {
-    GET_TODO: () => ({
-        thunk: async(dispatch, getState, { $http }) => {
-          const { data: todos } = await $http.get('/todos');
-          return dispatch(action('UPDATE_TODOS')(todos));
-        }
-    }),
-    UPDATE_TODOS: todos => ({ payload: { todos } })
-});
-
-//Also can get providers in reducer.
-const reducer = createReducer(initialState, [
-  {
-    types: [ action.type('UPDATE_TODOS') ],
-    reduce: ({ payload: { todos }, providers: { $http } }, state) => ({ ...state, todos })
-  }
-]);
-
+function getEntityForUser() {
+    // Use with redux-thunk
+    return ({ $http }) => async (dispatch, getState) => {
+        const { user: { id } } = getState();
+        const response = await $http.get(`/entities/user/${id}`);
+        return dispatch({
+          type: 'UPDATE_ENTITY',
+          payload: {
+              entity: response.body.entity
+          }
+        })
+    }
+}
 ```
