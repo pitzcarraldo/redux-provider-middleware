@@ -21,7 +21,7 @@ To use providerMiddleware, you should create `provider`. `provider` is pure Java
 
 * `name`: A name of the provider. You can call provided object by this name in actions.
 * `$get({dispatch, getState})`: A method that provides something. This can return anything you want. Variables, new instance, utility functions, singleton object...etc. `$get` will received object contains `dispatch` and `getState` like `redux-thunk`. It would help you when you need something related with redux state.
-* :warning: Caution: `$get` would called only one time when initializing providers. So if you want to get new instance from provider, you can retrun function from provider.
+* :warning: Caution: `$get` would called only one time when initializing providers. So if you want to get new instance from provider, you can retrun function that returns new instance from provider.
 
 ### `providedThunk(providers: object)`
 
