@@ -13,7 +13,7 @@ A redux middleware which provides Angular-like providers.
 
 ## `providerMiddleware(providers: array)`
 
-The `providerMiddleware` provides providers that similar with [providers of Angular.js](https://docs.angularjs.org/guide/providers). A `providerMiddleware` injects providers that returns new or cached objects to action.
+The `providerMiddleware` provides providers that similar with [providers of Angular.js](https://docs.angularjs.org/guide/providers). A `providerMiddleware` injects providers that returns new or cached objects to action. It also similar with [Spring Beans](http://www.tutorialspoint.com/spring/spring_bean_definition.htm).
 
 ### `provider`
 
