@@ -1,3 +1,8 @@
+# Use [Redux-Thunk](https://github.com/gaearon/redux-thunk) insted of This Middleware
+
+Since 2.1.0, Redux Thunk supports injecting a custom argument.
+So it could provides same function via `withExtraArgument` function.
+
 # Redux Provider Middleware
 
 A redux middleware which provides Angular-like providers.
